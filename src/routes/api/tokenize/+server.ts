@@ -1,4 +1,4 @@
-<!--
+/*
   Copyright (c) 2024 cannorin
 
   Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -18,17 +18,16 @@
   DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
   OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
   OR OTHER DEALINGS IN THE SOFTWARE.
--->
+*/
 
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <link rel="icon" href="%sveltekit.assets%/favicon.png" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    %sveltekit.head%
-  </head>
-  <body data-sveltekit-preload-data="hover">
-    <div style="display: contents">%sveltekit.body%</div>
-  </body>
-</html>
+import { error, json } from "@sveltejs/kit";
+import { isValidTool, measureExecutionTime, tokenize } from "$lib";
+
+export const POST = async ({ request }) => {
+  const { tool, input } = await request.json();
+  if (!input || typeof input !== "string") throw error(400);
+  if (!isValidTool(tool)) throw error(400);
+
+  const result = measureExecutionTime(tokenize, tool, input);
+  return json(result);
+};
